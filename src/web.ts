@@ -8,7 +8,7 @@ export class ReaderInterfaceWeb extends WebPlugin implements ReaderInterfacePlug
     return options;
   }
 
-  async listPairedDevices(): Promise<{ devices: any[] }> {
+  listPairedDevices(): { devices: any[] } {
     return {
       devices: [{
         id: 0,

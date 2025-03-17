@@ -10,7 +10,8 @@ public class ReaderInterfacePlugin: CAPPlugin, CAPBridgedPlugin {
     public let identifier = "ReaderInterfacePlugin"
     public let jsName = "ReaderInterface"
     public let pluginMethods: [CAPPluginMethod] = [
-        CAPPluginMethod(name: "echo", returnType: CAPPluginReturnPromise)
+        CAPPluginMethod(name: "echo", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "listPairedDevices", returnType: CAPPluginReturnPromise)
     ]
     private let implementation = ReaderInterface()
 
@@ -22,8 +23,17 @@ public class ReaderInterfacePlugin: CAPPlugin, CAPBridgedPlugin {
     }
     
     @objc func listPairedDevices(_ call: CAPPluginCall) {
+        let readers = implementation.listPairedDevices();
         call.resolve([
-            "devices": implementation.listPairedDevices()
+            "devices": readers.map(){reader in
+             return ["id": reader.id,
+                     "name": reader.name,
+                     "batteryLevel": reader.batteryLevel,
+                     "batteryLevelString": reader.batteryLevelString,
+                     "status": reader.status,
+                     "whiteCalibration": reader.whiteCalibration,
+                     "blackCalibration": reader.blackCalibration]
+            }
         ])
     }
 }

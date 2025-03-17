@@ -39,10 +39,10 @@ echo(options: { value: string; }) => Promise<{ value: string; }>
 ### listPairedDevices()
 
 ```typescript
-listPairedDevices() => Promise<{ devices: any[]; }>
+listPairedDevices() => { devices: any[]; }
 ```
 
-**Returns:** <code>Promise&lt;{ devices: any[]; }&gt;</code>
+**Returns:** <code>{ devices: any[]; }</code>
 
 --------------------
 
