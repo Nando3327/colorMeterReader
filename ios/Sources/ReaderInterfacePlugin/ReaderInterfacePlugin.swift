@@ -20,4 +20,10 @@ public class ReaderInterfacePlugin: CAPPlugin, CAPBridgedPlugin {
             "value": implementation.echo(value)
         ])
     }
+    
+    @objc func listPairedDevices(_ call: CAPPluginCall) {
+        call.resolve([
+            "devices": implementation.listPairedDevices()
+        ])
+    }
 }

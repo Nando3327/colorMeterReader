@@ -19,4 +19,11 @@ public class ReaderInterfacePlugin extends Plugin {
         ret.put("value", implementation.echo(value));
         call.resolve(ret);
     }
+
+    @PluginMethod
+    public void listPairedDevices(PluginCall call) {
+        JSObject ret = new JSObject();
+        ret.put("", implementation.listPairedDevices());
+        call.resolve(ret);
+    }
 }
