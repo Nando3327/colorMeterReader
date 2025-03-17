@@ -1,5 +1,7 @@
 package com.colormeter.reader.models;
 
+import com.getcapacitor.JSObject;
+
 public class PairedDevice {
 
     private int id;
@@ -20,5 +22,33 @@ public class PairedDevice {
         this.status = status;
         this.whiteCalibration = whiteCalibration;
         this.blackCalibration = blackCalibration;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public double getBatteryLevel() {
+        return batteryLevel;
+    }
+
+    public String getBatteryLevelString() {
+        return batteryLevelString;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public boolean isWhiteCalibration() {
+        return whiteCalibration;
+    }
+
+    public boolean isBlackCalibration() {
+        return blackCalibration;
     }
 }

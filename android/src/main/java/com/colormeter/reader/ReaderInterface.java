@@ -5,6 +5,7 @@ import android.util.Log;
 import com.colormeter.reader.models.PairedDevice;
 
 import java.util.ArrayList;
+import java.util.List;
 
 
 public class ReaderInterface {
@@ -14,9 +15,10 @@ public class ReaderInterface {
         return value;
     }
 
-    public ArrayList<PairedDevice> listPairedDevices() {
-        ArrayList listResponse = new ArrayList();
+    public List<PairedDevice> listPairedDevices() {
+        List<PairedDevice> listResponse = new ArrayList();
         listResponse.add(new PairedDevice(0, "Android CM2018920", 85, "85%", "disconnected", true, false));
+        listResponse.add(new PairedDevice(1, "Android CM2018920", 55, "55%", "disconnected", true, false));
         return listResponse;
     }
 }
