@@ -1,24 +1,31 @@
 package com.colormeter.reader;
 
+import android.annotation.SuppressLint;
+import android.bluetooth.BluetoothDevice;
 import android.util.Log;
 
 import com.colormeter.reader.models.PairedDevice;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 
 public class ReaderInterface {
 
+    private final static String REQUEST_ENABLE_BT = "bluetoothActivity";
     public String echo(String value) {
         Log.i("Echo", value);
         return value;
     }
 
-    public List<PairedDevice> listPairedDevices() {
+    public List<PairedDevice> listPairedDevices(Set<BluetoothDevice> pairedDevices) {
         List<PairedDevice> listResponse = new ArrayList();
-        listResponse.add(new PairedDevice(0, "Android CM2018920", 85, "85%", "disconnected", true, false));
-        listResponse.add(new PairedDevice(1, "Android CM2018920", 55, "55%", "disconnected", true, false));
+        for (BluetoothDevice device : pairedDevices) {
+            @SuppressLint("MissingPermission") String deviceName = device.getName();
+            String deviceHardwareAddress = device.getAddress(); // MAC address
+            listResponse.add(new PairedDevice(deviceHardwareAddress, deviceName, 100, "100%", "disconnected", false, false));
+        }
         return listResponse;
     }
 }

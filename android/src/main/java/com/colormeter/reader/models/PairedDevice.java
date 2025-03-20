@@ -4,7 +4,7 @@ import com.getcapacitor.JSObject;
 
 public class PairedDevice {
 
-    private int id;
+    private String macAddress;
     private String name;
     private double batteryLevel;
     private String batteryLevelString;
@@ -14,8 +14,8 @@ public class PairedDevice {
     private boolean blackCalibration;
 
 
-    public PairedDevice(int id, String name, double batteryLevel, String batteryLevelString, String status, boolean whiteCalibration, boolean blackCalibration) {
-        this.id = id;
+    public PairedDevice(String macAddress, String name, double batteryLevel, String batteryLevelString, String status, boolean whiteCalibration, boolean blackCalibration) {
+        this.macAddress = macAddress;
         this.name = name;
         this.batteryLevel = batteryLevel;
         this.batteryLevelString = batteryLevelString;
@@ -24,8 +24,8 @@ public class PairedDevice {
         this.blackCalibration = blackCalibration;
     }
 
-    public int getId() {
-        return id;
+    public String getMacAddress() {
+        return macAddress;
     }
 
     public String getName() {
