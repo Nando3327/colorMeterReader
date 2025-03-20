@@ -1,5 +1,5 @@
 public class PairedDevices {
-    var id = Int()
+    var macAddress = String()
     var name: String
     var batteryLevel: Int
     var batteryLevelString: String
@@ -7,8 +7,8 @@ public class PairedDevices {
     var whiteCalibration: Bool
     var blackCalibration: Bool
 
-    init (id: Int, name: String, batteryLevel: Int, batteryLevelString: String, status: String, whiteCalibration: Bool, blackCalibration: Bool) {
-        self.id = id
+    init (macAddress: String, name: String, batteryLevel: Int, batteryLevelString: String, status: String, whiteCalibration: Bool, blackCalibration: Bool) {
+        self.macAddress = macAddress
         self.name = name
         self.batteryLevel = batteryLevel
         self.batteryLevelString = batteryLevelString
