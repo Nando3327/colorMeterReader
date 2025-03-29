@@ -8,6 +8,20 @@ export class ReaderInterfaceWeb extends WebPlugin implements ReaderInterfacePlug
     return options;
   }
 
+  connect(options: { value: string }): Promise<{ value: boolean }> {
+    console.log(options);
+    return new Promise(() => {
+      return true
+    });
+  }
+
+  disconnect(options: { value: string }): Promise<{ value: boolean }> {
+    console.log(options);
+    return new Promise(() => {
+      return true
+    });
+  }
+
   listPairedDevices(): { devices: any[] } {
     return {
       devices: [{

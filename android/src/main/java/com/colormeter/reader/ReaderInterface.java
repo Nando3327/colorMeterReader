@@ -19,6 +19,16 @@ public class ReaderInterface {
         return value;
     }
 
+    public boolean connect(String value) {
+        Log.i("connect", value);
+        return true;
+    }
+
+    public boolean disconnect(String value) {
+        Log.i("disconnect", value);
+        return true;
+    }
+
     public List<PairedDevice> listPairedDevices(Set<BluetoothDevice> pairedDevices) {
         List<PairedDevice> listResponse = new ArrayList();
         for (BluetoothDevice device : pairedDevices) {

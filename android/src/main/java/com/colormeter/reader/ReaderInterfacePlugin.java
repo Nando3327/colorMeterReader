@@ -47,6 +47,24 @@ public class ReaderInterfacePlugin extends Plugin {
         call.resolve(ret);
     }
 
+    @PluginMethod
+    public void connect(PluginCall call) {
+        String value = call.getString("value");
+
+        JSObject ret = new JSObject();
+        ret.put("value", implementation.connect(value));
+        call.resolve(ret);
+    }
+
+    @PluginMethod
+    public void disconnect(PluginCall call) {
+        String value = call.getString("value");
+
+        JSObject ret = new JSObject();
+        ret.put("value", implementation.disconnect(value));
+        call.resolve(ret);
+    }
+
     @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
     @PluginMethod
     public void listPairedDevices(PluginCall call) throws JSONException {

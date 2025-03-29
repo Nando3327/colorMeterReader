@@ -11,6 +11,52 @@ import CoreBluetooth
     var peripherals: [CBPeripheral] = []
     
     
+    var connectedPeripheral: CBPeripheral?
+    func connect(address: String) {
+        var peripheralDevice: CBPeripheral? = nil;
+        peripherals.forEach { peripheral in
+            if((peripheral.identifier.uuidString) == address) {
+                peripheralDevice = peripheral;
+            }
+        }
+        return centralManager.connect(peripheralDevice!)
+     }
+    
+    
+    
+    func disconnect(address: String) {
+        var peripheralDevice: CBPeripheral? = nil;
+        peripherals.forEach { peripheral in
+            if((peripheral.identifier.uuidString) == address) {
+                peripheralDevice = peripheral;
+            }
+        }
+        centralManager.cancelPeripheralConnection(peripheralDevice!)
+    }
+    
+    
+    // In CBCentralManagerDelegate class/extension
+    public func centralManager(_ central: CBCentralManager, didDisconnectPeripheral peripheral: CBPeripheral, error: Error?) {
+        if let error = error {
+            // Handle error
+            return
+        }
+        // Successfully disconnected
+    }
+    
+
+    // In CBCentralManagerDelegate class/extension
+    public func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
+        // Successfully connected. Store reference to peripheral if not already done.
+        self.connectedPeripheral = peripheral
+    }
+     
+    public func centralManager(_ central: CBCentralManager, didFailToConnect peripheral: CBPeripheral, error: Error?) {
+        print(error)
+        // Handle error
+    }
+    
+    
     public func centralManagerDidUpdateState(_ central: CBCentralManager) {
         if central.state == .poweredOn {
             centralManager.scanForPeripherals(withServices: nil, options: nil)
@@ -43,11 +89,9 @@ import CoreBluetooth
         }
         if(!peripherals.isEmpty) {
             peripherals.forEach { peripheral in
-                if((peripheral.name) != nil) {
-                    var obj: PairedDevices;
-                    obj = .init(macAddress: peripheral.identifier.uuidString, name: peripheral.name ?? "Unknown Device", batteryLevel: 10, batteryLevelString: "10%", status: "asss", whiteCalibration: true, blackCalibration: false)
-                    pairedDevices.append(obj)
-                }
+                var obj: PairedDevices;
+                obj = .init(macAddress: peripheral.identifier.uuidString, name: peripheral.name ?? peripheral.identifier.uuidString, batteryLevel: 10, batteryLevelString: "10%", status: "asss", whiteCalibration: true, blackCalibration: false)
+                pairedDevices.append(obj)
             }
         }
         return pairedDevices;

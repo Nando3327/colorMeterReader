@@ -15,6 +15,8 @@ npx cap sync
 
 * [`echo(...)`](#echo)
 * [`listPairedDevices()`](#listpaireddevices)
+* [`connect(...)`](#connect)
+* [`disconnect(...)`](#disconnect)
 
 </docgen-index>
 
@@ -43,6 +45,36 @@ listPairedDevices() => { devices: any[]; }
 ```
 
 **Returns:** <code>{ devices: any[]; }</code>
+
+--------------------
+
+
+### connect(...)
+
+```typescript
+connect(options: { value: string; }) => Promise<{ value: boolean; }>
+```
+
+| Param         | Type                            |
+| ------------- | ------------------------------- |
+| **`options`** | <code>{ value: string; }</code> |
+
+**Returns:** <code>Promise&lt;{ value: boolean; }&gt;</code>
+
+--------------------
+
+
+### disconnect(...)
+
+```typescript
+disconnect(options: { value: string; }) => Promise<{ value: boolean; }>
+```
+
+| Param         | Type                            |
+| ------------- | ------------------------------- |
+| **`options`** | <code>{ value: string; }</code> |
+
+**Returns:** <code>Promise&lt;{ value: boolean; }&gt;</code>
 
 --------------------
 
