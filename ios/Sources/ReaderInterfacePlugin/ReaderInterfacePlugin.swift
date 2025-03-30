@@ -14,7 +14,8 @@ public class ReaderInterfacePlugin: CAPPlugin, CAPBridgedPlugin {
         CAPPluginMethod(name: "echo", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "listPairedDevices", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "connect", returnType: CAPPluginReturnPromise),
-        CAPPluginMethod(name: "disconnect", returnType: CAPPluginReturnPromise)
+        CAPPluginMethod(name: "disconnect", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "valueDetected", returnType: CAPPluginReturnPromise)
     ]
     private let implementation = ReaderInterface()
 
@@ -24,6 +25,16 @@ public class ReaderInterfacePlugin: CAPPlugin, CAPBridgedPlugin {
             "value": implementation.echo(value)
         ])
     }
+    
+    @objc func valueDetected(_ call: CAPPluginCall) {
+        implementation.returnValue = { (value) -> Void in
+            print(value)
+            call.resolve([
+                "value": [value]
+            ])
+        }
+    }
+
     
     @objc func connect(_ call: CAPPluginCall) {
         let value = call.getString("value") ?? ""

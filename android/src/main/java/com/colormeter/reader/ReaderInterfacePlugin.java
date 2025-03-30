@@ -39,6 +39,15 @@ public class ReaderInterfacePlugin extends Plugin {
     private final static String REQUEST_ENABLE_BT = "bluetoothActivity";
 
     @PluginMethod
+    public void valueDetected(PluginCall call) {
+        String value = call.getString("value");
+
+        JSObject ret = new JSObject();
+        ret.put("value", implementation.echo(value));
+        call.resolve(ret);
+    }
+
+    @PluginMethod
     public void echo(PluginCall call) {
         String value = call.getString("value");
 

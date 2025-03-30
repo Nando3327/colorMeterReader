@@ -22,6 +22,12 @@ export class ReaderInterfaceWeb extends WebPlugin implements ReaderInterfacePlug
     });
   }
 
+  valueDetected(): Promise<{ value: any }> {
+    return new Promise(() => {
+      return true
+    });
+  }
+
   listPairedDevices(): { devices: any[] } {
     return {
       devices: [{

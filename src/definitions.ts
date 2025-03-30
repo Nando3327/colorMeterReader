@@ -3,4 +3,5 @@ export interface ReaderInterfacePlugin {
   listPairedDevices(): { devices: any[] }
   connect(options: { value: string }): Promise<{ value: boolean }>
   disconnect(options: { value: string }): Promise<{ value: boolean }>
+  valueDetected(): Promise<{ value: any }>
 }

@@ -17,6 +17,7 @@ npx cap sync
 * [`listPairedDevices()`](#listpaireddevices)
 * [`connect(...)`](#connect)
 * [`disconnect(...)`](#disconnect)
+* [`valueDetected()`](#valuedetected)
 
 </docgen-index>
 
@@ -75,6 +76,17 @@ disconnect(options: { value: string; }) => Promise<{ value: boolean; }>
 | **`options`** | <code>{ value: string; }</code> |
 
 **Returns:** <code>Promise&lt;{ value: boolean; }&gt;</code>
+
+--------------------
+
+
+### valueDetected()
+
+```typescript
+valueDetected() => Promise<{ value: any; }>
+```
+
+**Returns:** <code>Promise&lt;{ value: any; }&gt;</code>
 
 --------------------
 
