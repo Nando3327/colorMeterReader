@@ -28,9 +28,9 @@ public class ReaderInterfacePlugin: CAPPlugin, CAPBridgedPlugin {
     
     @objc func valueDetected(_ call: CAPPluginCall) {
         implementation.returnValue = { (value) -> Void in
-            print(value)
+            let arr = [UInt8](value)
             call.resolve([
-                "value": [value]
+                "value": arr
             ])
         }
     }

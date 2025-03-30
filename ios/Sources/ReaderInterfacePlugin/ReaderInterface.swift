@@ -178,7 +178,6 @@ import CoreBluetooth
         guard let value = characteristic.value else {
             return
         }
-        print(value)
         returnValue?(value)
         // Do something with data
     }
