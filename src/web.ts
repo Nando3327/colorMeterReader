@@ -16,28 +16,31 @@ export class ReaderInterfaceWeb extends WebPlugin implements ReaderInterfacePlug
   }
 
   async getReaderCalibrationStatus(): Promise<{ black: boolean, white: boolean }> {
-    return { black: true, white: false };
+    return new Promise((resolve) => {
+      this.readerConnected = true;
+      resolve({ black: true, white: false });
+    });
   }
 
   connect(options: { value: string }): Promise<{ value: boolean }> {
     console.log(options);
-    return new Promise(() => {
+    return new Promise((resolve) => {
       this.readerConnected = true;
-      return true
+      resolve({value: true});
     });
   }
 
   disconnect(options: { value: string }): Promise<{ value: boolean }> {
     console.log(options);
-    return new Promise(() => {
+    return new Promise((resolve) => {
       this.readerConnected = false;
-      return true
+      resolve({value: true});
     });
   }
 
-  valueDetected(): Promise<{ value: any }> {
-    return new Promise(() => {
-      return true
+  valueDetected(): Promise<{ l: string, a: string, b: string }> {
+    return new Promise((resolve) => {
+      resolve({l: '10', a: '10', b: '22'});
     });
   }
 
