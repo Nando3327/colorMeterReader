@@ -3,14 +3,26 @@ import { WebPlugin } from '@capacitor/core';
 import type { ReaderInterfacePlugin } from './definitions';
 
 export class ReaderInterfaceWeb extends WebPlugin implements ReaderInterfacePlugin {
+  readerConnected = false;
+
+
   async echo(options: { value: string }): Promise<{ value: string }> {
     console.log('ECHO', options);
     return options;
   }
 
+  async isReaderConnected(): Promise<{ value: boolean }> {
+    return {value: this.readerConnected};
+  }
+
+  async getReaderCalibrationStatus(): Promise<{ black: boolean, white: boolean }> {
+    return { black: true, white: false };
+  }
+
   connect(options: { value: string }): Promise<{ value: boolean }> {
     console.log(options);
     return new Promise(() => {
+      this.readerConnected = true;
       return true
     });
   }
@@ -18,6 +30,7 @@ export class ReaderInterfaceWeb extends WebPlugin implements ReaderInterfacePlug
   disconnect(options: { value: string }): Promise<{ value: boolean }> {
     console.log(options);
     return new Promise(() => {
+      this.readerConnected = false;
       return true
     });
   }

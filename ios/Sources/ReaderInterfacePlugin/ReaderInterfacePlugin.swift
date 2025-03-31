@@ -15,7 +15,9 @@ public class ReaderInterfacePlugin: CAPPlugin, CAPBridgedPlugin {
         CAPPluginMethod(name: "listPairedDevices", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "connect", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "disconnect", returnType: CAPPluginReturnPromise),
-        CAPPluginMethod(name: "valueDetected", returnType: CAPPluginReturnPromise)
+        CAPPluginMethod(name: "valueDetected", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "valueDetected", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "getReaderCalibrationStatus", returnType: CAPPluginReturnPromise)
     ]
     private let implementation = ReaderInterface()
 
@@ -26,11 +28,30 @@ public class ReaderInterfacePlugin: CAPPlugin, CAPBridgedPlugin {
         ])
     }
     
-    @objc func valueDetected(_ call: CAPPluginCall) {
-        implementation.returnValue = { (value) -> Void in
-            let arr = [UInt8](value)
+    @objc func isReaderConnected(_ call: CAPPluginCall) {
+        call.resolve([
+            "value": implementation.isReaderConnected()
+        ])
+    }
+    
+    @objc func getReaderCalibrationStatus(_ call: CAPPluginCall) {
+        implementation.getReaderCalibrationStatus();
+        implementation.calibrationStatus = { (value) -> Void in
+            print(value);
             call.resolve([
-                "value": arr
+                "black": value.black,
+                "white": value.white
+            ])
+        }
+    }
+    
+    @objc func valueDetected(_ call: CAPPluginCall) {
+        implementation.valueDetected();
+        implementation.returnValue = { (value) -> Void in
+            call.resolve([
+                "l": value.l,
+                "a": value.a,
+                "b": value.b
             ])
         }
     }

@@ -18,6 +18,8 @@ npx cap sync
 * [`connect(...)`](#connect)
 * [`disconnect(...)`](#disconnect)
 * [`valueDetected()`](#valuedetected)
+* [`isReaderConnected()`](#isreaderconnected)
+* [`getReaderCalibrationStatus()`](#getreadercalibrationstatus)
 
 </docgen-index>
 
@@ -87,6 +89,28 @@ valueDetected() => Promise<{ value: any; }>
 ```
 
 **Returns:** <code>Promise&lt;{ value: any; }&gt;</code>
+
+--------------------
+
+
+### isReaderConnected()
+
+```typescript
+isReaderConnected() => Promise<{ value: boolean; }>
+```
+
+**Returns:** <code>Promise&lt;{ value: boolean; }&gt;</code>
+
+--------------------
+
+
+### getReaderCalibrationStatus()
+
+```typescript
+getReaderCalibrationStatus() => Promise<{ black: boolean; white: boolean; }>
+```
+
+**Returns:** <code>Promise&lt;{ black: boolean; white: boolean; }&gt;</code>
 
 --------------------
 

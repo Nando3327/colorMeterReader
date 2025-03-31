@@ -15,7 +15,15 @@ public class PairedDevices {
     var whiteCalibration: Bool
     var blackCalibration: Bool
 
-    init (macAddress: String, name: String, batteryLevel: Int, batteryLevelString: String, status: String, whiteCalibration: Bool, blackCalibration: Bool) {
+    init (
+        macAddress: String,
+        name: String,
+        batteryLevel: Int,
+        batteryLevelString: String,
+        status: String,
+        whiteCalibration: Bool,
+        blackCalibration: Bool
+    ) {
         self.macAddress = macAddress
         self.name = name
         self.batteryLevel = batteryLevel
@@ -26,22 +34,42 @@ public class PairedDevices {
     }
 }
 
+public class LAB {
+    var l: String
+    var a: String
+    var b: String
+    
+    init(l: String, a: String, b: String) {
+        self.l = l
+        self.a = a
+        self.b = b
+    }
+}
+
+public class CalibrationStatus {
+    var black: Bool
+    var white: Bool
+    
+    init(black: Bool, white: Bool) {
+        self.black = black
+        self.white = white
+    }
+}
 
 
-@objc public class ReaderInterface: NSObject, CBCentralManagerDelegate, CBPeripheralManagerDelegate, CBPeripheralDelegate {
+@objc public class ReaderInterface: NSObject {
     
     
-    var centralManager: CBCentralManager!
-    var peripheralManager: CBPeripheralManager!
-    var discoveredPeripheral: CBPeripheral?
     var pairedDevices: Array<PairedDevices> = []
     var peripherals: [CBPeripheral] = []
-    var connectedPeripheral: CBPeripheral?
-    var returnValue: ((_ value: Data)->())?
+    var returnValue: ((_ value: LAB)->())?
+    var calibrationStatus: ((_ value: CalibrationStatus)->())?
+    var connectedDevice: CBPeripheral? = nil;
     
     
     var cm = CMKit()
     var disposable: Disposable?
+    var disposableLectures: Disposable?
     
     
     public func listPairedDevices() -> [PairedDevices] {
@@ -53,12 +81,22 @@ public class PairedDevices {
             .subscribe(
                 onNext: { [weak self] state in
                     if let peripheral = state.peripheral {
-                        let filtered = listedMacs.filter { $0.elementsEqual(peripheral.identifier.uuidString) }
+                        let filtered = listedMacs.filter {
+                            $0.elementsEqual(peripheral.identifier.uuidString)
+                        }
                         if(filtered.isEmpty && (peripheral.name) != nil) {
                             listedMacs.append(peripheral.identifier.uuidString);
                             self?.peripherals.append(peripheral)
                             var obj: PairedDevices;
-                            obj = .init(macAddress: peripheral.identifier.uuidString, name: peripheral.name ?? peripheral.identifier.uuidString, batteryLevel: 10, batteryLevelString: "10%", status: "asss", whiteCalibration: true, blackCalibration: false);
+                            obj = .init(
+                                macAddress: peripheral.identifier.uuidString,
+                                name: peripheral.name ?? peripheral.identifier.uuidString,
+                                batteryLevel: 10,
+                                batteryLevelString: "10%",
+                                status: "asss",
+                                whiteCalibration: true,
+                                blackCalibration: false
+                            );
                             self?.pairedDevices.append(obj)
                         }
                     }
@@ -68,22 +106,12 @@ public class PairedDevices {
                 onDisposed: { print("scan disposed") }
             )
         do {
-                   sleep(4)
+            sleep(4)
         }
         cm.stopScan();
         disposable?.dispose()
         return pairedDevices;
     }
-    
-    public func centralManagerDidUpdateState(_ central: CBCentralManager) {
-    }
-    
-    public func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral, advertisementData: [String : Any], rssi: NSNumber) {
-    }
-    
-    public func peripheralManagerDidUpdateState(_ peripheral: CBPeripheralManager) {
-    }
-    
     
     func connect(address: String) -> Bool {
         var peripheralDevice: CBPeripheral? = nil;
@@ -93,161 +121,83 @@ public class PairedDevices {
             }
         }
         var connected = false;
-        cm.connect(peripheralDevice!).subscribe(
-            onNext: {_ in 
+        disposable = cm.connect(peripheralDevice!).subscribe(
+            onNext: {_ in
                 connected = true;
+                self.connectedDevice = peripheralDevice;
+                self.disposable?.dispose()
             },
-            onError: { print("connection error: \($0)") },
+            onError: {
+                print("connection error: \($0)")
+            },
             onDisposed: { print("dispose") }
         )
         do {
-                   sleep(4)
+            sleep(4)
         }
+        disposable?.dispose()
         return connected
-     }
-    
-    public func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
-        // Successfully connected. Store reference to peripheral if not already done.
-//        self.connectedPeripheral = peripheral
-//        peripheral.delegate = self
-//        self.discoverServices(peripheral: peripheral);
-    }
-     
-    public func centralManager(_ central: CBCentralManager, didFailToConnect peripheral: CBPeripheral, error: Error?) {
-        print(error)
-        // Handle error
     }
     
-    func discoverServices(peripheral: CBPeripheral) {
-//        peripheral.discoverServices(nil)
-    }
-    
-    public func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?) {
-        guard let services = peripheral.services else {
-            return
-        }
-//        discoverCharacteristics(peripheral: peripheral)
-    }
-     
-    // Call after discovering services
-    func discoverCharacteristics(peripheral: CBPeripheral) {
-//        guard let services = peripheral.services else {
-//            return
-//        }
-//        for service in services {
-//            peripheral.discoverCharacteristics(nil, for: service)
-//        }
-    }
-    
-    public func peripheral(_ peripheral: CBPeripheral, didDiscoverCharacteristicsFor service: CBService, error: Error?) {
-//        guard let characteristics = service.characteristics else {
-//            return
-//        }
-//        for characteristic in characteristics {
-//            discoverDescriptors(peripheral: peripheral, characteristic: characteristic)
-//            do {
-//                sleep(2)
-//            }
-//            subscribeToNotifications(peripheral: peripheral, characteristic: characteristic)
-//            
-//        }
-        // Consider storing important characteristics internally for easy access and equivalency checks later.
-        // From here, can read/write to characteristics or subscribe to notifications as desired.
-    }
-    
-    
-    
-    func subscribeToNotifications(peripheral: CBPeripheral, characteristic: CBCharacteristic) {
-//        peripheral.setNotifyValue(true, for: characteristic)
-     }
-
-    // In CBPeripheralDelegate class/extension
-    public func peripheral(_ peripheral: CBPeripheral, didUpdateNotificationStateFor characteristic: CBCharacteristic, error: Error?) {
-//        if let error = error {
-//            // Handle error
-//            NSLog("Error changing notification state: %@",
-//                       [error]);
-//            return
-//        }
-//        readValue(characteristic: characteristic)
-        // Successfully subscribed to or unsubscribed from notifications/indications on a characteristic
-    }
-    
-    func discoverDescriptors(peripheral: CBPeripheral, characteristic: CBCharacteristic) {
-//        peripheral.discoverDescriptors(for: characteristic)
-    }
-    
-    // In CBPeripheralDelegate class/extension
-    public func peripheral(_ peripheral: CBPeripheral, didDiscoverDescriptorsFor characteristic: CBCharacteristic, error: Error?) {
-//        guard let descriptors = characteristic.descriptors else { return }
-//        let data = NSData(bytes: [0xbb, 0x02, 0 + 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0x00] as [UInt8], length: 20);
-//        let charatceristicDefault = CBMutableCharacteristic.init(type: CBUUID(string: "FFE2"), properties: [.read, .notify, .write], value: data as Data, permissions: .writeable)
-//        print(charatceristicDefault)
-//        write(value: data as Data, characteristic: charatceristicDefault)
-//        readValue(characteristic: charatceristicDefault)
-//        peripheral.setNotifyValue(true, for: charatceristicDefault)
-//        peripheral.setNotifyValue(true, for: characteristic)
-//        peripheral.readValue(for: characteristic)
-        
-    }
-     
-    public func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor descriptor: CBDescriptor, error: Error?) {
-        // Get and print user description for a given characteristic
-//        print("Characterstic \(descriptor.characteristic?.uuid.uuidString)")
-    }
-
     func disconnect(address: String) {
-        cm.disconnect();
-//        var peripheralDevice: CBPeripheral? = nil;
-//        peripherals.forEach { peripheral in
-//            if((peripheral.identifier.uuidString) == address) {
-//                peripheralDevice = peripheral;
-//            }
-//        }
-//        centralManager.cancelPeripheralConnection(peripheralDevice!)
+        disposable = cm.disconnect().subscribe(
+            onNext: {_ in
+                self.connectedDevice = nil;
+                self.disposable?.dispose()
+            },
+            onError: {
+                print("disconnection error: \($0)")
+            },
+            onDisposed: {
+                print("dispose")
+            });
     }
     
     
-    // In CBCentralManagerDelegate class/extension
-    public func centralManager(_ central: CBCentralManager, didDisconnectPeripheral peripheral: CBPeripheral, error: Error?) {
-//        if let error = error {
-//            // Handle error
-//            return
-//        }
-        // Successfully disconnected
+    @objc public func valueDetected() {
+        disposableLectures = cm.observeMeasure()
+            .concatMap { _ in
+                return self.cm.getMeasureData()
+            }
+            .subscribe { data in
+                if let data = data {
+                    let color = CMColor(
+                        spectral: data.refs.map({ Double($0) }),
+                        waveStart: Int(data.waveStart),
+                        lightSource: .init(angle: .deg10, category: .D65)
+                    )
+                    let (red, green, blue) = color.rgb
+                    let (l, a, b) = color.lab
+                    
+                    var obj: LAB;
+                    obj = .init(l: String(l), a: String(a), b: String(b))
+                    self.disposableLectures?.dispose()
+                    self.returnValue?(obj)
+                }
+            } onError: { error in
+                print("measure error: \(error)")
+            }
     }
     
-    func write(value: Data, characteristic: CBCharacteristic) {
-//        self.connectedPeripheral?.writeValue(value, for: characteristic, type: .withResponse)
-     }
-    
-    // In CBPeripheralDelegate class/extension
-    // Only called if write type was .withResponse
-    public func peripheral(_ peripheral: CBPeripheral, didWriteValueFor characteristic: CBCharacteristic, error: Error?) {
-//        if let error = error {
-//            // Handle error
-//            print(error)
-//            return
-//        }
-        // Successfully wrote value to characteristic
+    @objc public func getReaderCalibrationStatus() {
+        disposable = cm.getCalibrationState().subscribe(
+            onNext: {status in
+                print(status);
+                var obj: CalibrationStatus;
+                obj = .init(black: status?.blackCalibrateTimestamp != nil, white: true)
+                self.calibrationStatus?(obj);
+                self.disposable?.dispose()
+            },
+            onError: {
+                print("disconnection error: \($0)")
+            },
+            onDisposed: {
+                print("dispose")
+            });
     }
     
-    
-    func readValue(characteristic: CBCharacteristic) {
-//        self.connectedPeripheral?.readValue(for: characteristic)
-    }
-
-    // In CBPeripheralDelegate class/extension
-    public func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error: Error?) {
-        if let error = error {
-            // Handle error
-            return
-        }
-        guard let value = characteristic.value else {
-            return
-        }
-        returnValue?(value)
-        // Do something with data
+    @objc public func isReaderConnected() -> Bool {
+        return (connectedDevice != nil)
     }
     
     @objc public func echo(_ value: String) -> String {
