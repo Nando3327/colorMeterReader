@@ -18,11 +18,14 @@ import CoreBluetooth
         do {
             sleep(4)
         }
+        pairedDevices = [];
         if(!peripherals.isEmpty) {
             peripherals.forEach { peripheral in
-                var obj: PairedDevices;
-                obj = .init(macAddress: peripheral.identifier.uuidString, name: peripheral.name ?? peripheral.identifier.uuidString, batteryLevel: 10, batteryLevelString: "10%", status: "asss", whiteCalibration: true, blackCalibration: false)
-                pairedDevices.append(obj)
+                if((peripheral.name) != nil) {
+                    var obj: PairedDevices;
+                    obj = .init(macAddress: peripheral.identifier.uuidString, name: peripheral.name ?? peripheral.identifier.uuidString, batteryLevel: 10, batteryLevelString: "10%", status: "asss", whiteCalibration: true, blackCalibration: false)
+                    pairedDevices.append(obj)
+                }
             }
         }
         return pairedDevices;
@@ -95,6 +98,7 @@ import CoreBluetooth
         guard let characteristics = service.characteristics else {
             return
         }
+        print(service);
         for characteristic in characteristics {
             print(characteristic)
             discoverDescriptors(peripheral: peripheral, characteristic: characteristic)
@@ -128,21 +132,22 @@ import CoreBluetooth
     public func peripheral(_ peripheral: CBPeripheral, didDiscoverDescriptorsFor characteristic: CBCharacteristic, error: Error?) {
         guard let descriptors = characteristic.descriptors else { return }
      
+        
+        print(characteristic.descriptors)
         // Get user description descriptor
-        if let userDescriptionDescriptor = descriptors.first(where: {
-            return $0.uuid.uuidString == CBUUIDCharacteristicUserDescriptionString
-        }) {
-            // Read user description for characteristic
-            peripheral.readValue(for: userDescriptionDescriptor)
-        }
+        
+        write(value: NSData(bytes: [0xbb, 0x02, 0 + 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0x00] as [UInt8], length: 20) as Data, characteristic: characteristic)
+        peripheral.readValue(for: characteristic)
+        
+//        for descriptor in characteristic.descriptors {
+//            print(descriptor)
+//            peripheral.writeValue(NSData(bytes: [0xbb, 0x02, 0 + 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0x00] as [UInt8], length: 20) as Data, for: descriptor)
+//        }
     }
      
     public func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor descriptor: CBDescriptor, error: Error?) {
         // Get and print user description for a given characteristic
-        if descriptor.uuid.uuidString == CBUUIDCharacteristicUserDescriptionString,
-            let userDescription = descriptor.value as? String {
-            print("Characterstic \(descriptor.characteristic?.uuid.uuidString) is also known as \(userDescription)")
-        }
+        print("Characterstic \(descriptor.characteristic?.uuid.uuidString)")
     }
 
     func disconnect(address: String) {
@@ -165,6 +170,26 @@ import CoreBluetooth
         // Successfully disconnected
     }
     
+    func write(value: Data, characteristic: CBCharacteristic) {
+        self.connectedPeripheral?.writeValue(value, for: characteristic, type: .withResponse)
+     }
+    
+    // In CBPeripheralDelegate class/extension
+    // Only called if write type was .withResponse
+    public func peripheral(_ peripheral: CBPeripheral, didWriteValueFor characteristic: CBCharacteristic, error: Error?) {
+        print(characteristic.uuid)
+        print(characteristic.descriptors)
+        print(characteristic.properties)
+        print(characteristic.service)
+        if let error = error {
+            // Handle error
+            print(error)
+            return
+        }
+        // Successfully wrote value to characteristic
+    }
+    
+    
     func readValue(characteristic: CBCharacteristic) {
         self.connectedPeripheral?.readValue(for: characteristic)
     }
@@ -178,6 +203,11 @@ import CoreBluetooth
         guard let value = characteristic.value else {
             return
         }
+        print(characteristic.uuid)
+        print(characteristic.descriptors)
+        print(characteristic.properties)
+        print(characteristic.service)
+        
         returnValue?(value)
         // Do something with data
     }
