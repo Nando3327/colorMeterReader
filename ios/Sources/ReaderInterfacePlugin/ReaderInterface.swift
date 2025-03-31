@@ -182,9 +182,8 @@ public class CalibrationStatus {
     @objc public func getReaderCalibrationStatus() {
         disposable = cm.getCalibrationState().subscribe(
             onNext: {status in
-                print(status);
                 var obj: CalibrationStatus;
-                obj = .init(black: status?.blackCalibrateTimestamp != nil, white: true)
+                obj = .init(black: status?.blackCalibrateTimestamp != nil, white: status?.whiteCalibrateTimestamp != nil)
                 self.calibrationStatus?(obj);
                 self.disposable?.dispose()
             },
