@@ -199,6 +199,28 @@ public class CalibrationStatus {
         return (connectedDevice != nil)
     }
     
+    @objc public func calibrateBlack() -> Bool {
+        disposable = cm.getCalibrationState().subscribe(
+            onNext: {status in
+                var obj: CalibrationStatus;
+                obj = .init(black: status?.blackCalibrateTimestamp != nil, white: status?.whiteCalibrateTimestamp != nil)
+                self.calibrationStatus?(obj);
+                self.disposable?.dispose()
+            },
+            onError: {
+                print("disconnection error: \($0)")
+            },
+            onDisposed: {
+                print("dispose")
+            });
+        return true
+    }
+    
+    @objc public func calibrateWhite() -> Bool {
+        
+        return true
+    }
+    
     @objc public func echo(_ value: String) -> String {
         print(value)
         return value

@@ -85,10 +85,10 @@ disconnect(options: { value: string; }) => Promise<{ value: boolean; }>
 ### valueDetected()
 
 ```typescript
-valueDetected() => Promise<{ value: any; }>
+valueDetected() => Promise<{ l: string; a: string; b: string; }>
 ```
 
-**Returns:** <code>Promise&lt;{ value: any; }&gt;</code>
+**Returns:** <code>Promise&lt;{ l: string; a: string; b: string; }&gt;</code>
 
 --------------------
 

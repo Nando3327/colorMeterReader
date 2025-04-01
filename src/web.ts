@@ -44,6 +44,18 @@ export class ReaderInterfaceWeb extends WebPlugin implements ReaderInterfacePlug
     });
   }
 
+  calibrateWhite(): Promise<{ calibrated: boolean }> {
+    return new Promise((resolve) => {
+      resolve({calibrated: true});
+    });
+  }
+
+  calibrateBlack(): Promise<{ calibrated: boolean }> {
+    return new Promise((resolve) => {
+      resolve({calibrated: true});
+    });
+  }
+
   listPairedDevices(): { devices: any[] } {
     return {
       devices: [{

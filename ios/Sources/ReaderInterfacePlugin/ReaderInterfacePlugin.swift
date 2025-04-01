@@ -17,7 +17,10 @@ public class ReaderInterfacePlugin: CAPPlugin, CAPBridgedPlugin {
         CAPPluginMethod(name: "disconnect", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "valueDetected", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "valueDetected", returnType: CAPPluginReturnPromise),
-        CAPPluginMethod(name: "getReaderCalibrationStatus", returnType: CAPPluginReturnPromise)
+        CAPPluginMethod(name: "getReaderCalibrationStatus", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "calibrateWhite", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "calibrateBlack", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "isReaderConnected", returnType: CAPPluginReturnPromise)
     ]
     private let implementation = ReaderInterface()
 
@@ -25,6 +28,18 @@ public class ReaderInterfacePlugin: CAPPlugin, CAPBridgedPlugin {
         let value = call.getString("value") ?? ""
         call.resolve([
             "value": implementation.echo(value)
+        ])
+    }
+    
+    @objc func calibrateWhite(_ call: CAPPluginCall) {
+        call.resolve([
+            "calibrated": implementation.calibrateWhite()
+        ])
+    }
+    
+    @objc func calibrateBlack(_ call: CAPPluginCall) {
+        call.resolve([
+            "calibrated": implementation.calibrateBlack()
         ])
     }
     

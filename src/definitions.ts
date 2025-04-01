@@ -6,4 +6,6 @@ export interface ReaderInterfacePlugin {
   valueDetected(): Promise<{ l: string, a: string, b: string }>
   isReaderConnected(): Promise<{ value: boolean }>
   getReaderCalibrationStatus(): Promise<{ black: boolean, white: boolean }>
+  calibrateWhite(): Promise<{ calibrated: boolean }>
+  calibrateBlack(): Promise<{ calibrated: boolean }>
 }
