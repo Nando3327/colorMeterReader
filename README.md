@@ -20,6 +20,8 @@ npx cap sync
 * [`valueDetected()`](#valuedetected)
 * [`isReaderConnected()`](#isreaderconnected)
 * [`getReaderCalibrationStatus()`](#getreadercalibrationstatus)
+* [`calibrateWhite()`](#calibratewhite)
+* [`calibrateBlack()`](#calibrateblack)
 
 </docgen-index>
 
@@ -111,6 +113,28 @@ getReaderCalibrationStatus() => Promise<{ black: boolean; white: boolean; }>
 ```
 
 **Returns:** <code>Promise&lt;{ black: boolean; white: boolean; }&gt;</code>
+
+--------------------
+
+
+### calibrateWhite()
+
+```typescript
+calibrateWhite() => Promise<{ calibrated: boolean; }>
+```
+
+**Returns:** <code>Promise&lt;{ calibrated: boolean; }&gt;</code>
+
+--------------------
+
+
+### calibrateBlack()
+
+```typescript
+calibrateBlack() => Promise<{ calibrated: boolean; }>
+```
+
+**Returns:** <code>Promise&lt;{ calibrated: boolean; }&gt;</code>
 
 --------------------
 
