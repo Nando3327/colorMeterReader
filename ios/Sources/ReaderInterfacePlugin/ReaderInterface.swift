@@ -4,8 +4,6 @@ import UIKit
 import ColorMeterKit
 import RxSwift
 
-
-
 public class PairedDevices {
     var macAddress = String()
     var name: String
@@ -64,6 +62,8 @@ public class CalibrationStatus {
     var peripherals: [CBPeripheral] = []
     var returnValue: ((_ value: LAB)->())?
     var calibrationStatus: ((_ value: CalibrationStatus)->())?
+    var calibrateBlackCallback: ((_ value: Bool)->())?
+    var calibrateWhiteCallback: ((_ value: Bool)->())?
     var connectedDevice: CBPeripheral? = nil;
     
     
@@ -200,15 +200,14 @@ public class CalibrationStatus {
     }
     
     @objc public func calibrateBlack() -> Bool {
-        disposable = cm.getCalibrationState().subscribe(
+        disposable = cm.blackCalibrate().subscribe(
             onNext: {status in
-                var obj: CalibrationStatus;
-                obj = .init(black: status?.blackCalibrateTimestamp != nil, white: status?.whiteCalibrateTimestamp != nil)
-                self.calibrationStatus?(obj);
+                self.calibrateBlackCallback?(true);
                 self.disposable?.dispose()
             },
             onError: {
                 print("disconnection error: \($0)")
+                self.calibrateBlackCallback?(false);
             },
             onDisposed: {
                 print("dispose")
@@ -217,7 +216,18 @@ public class CalibrationStatus {
     }
     
     @objc public func calibrateWhite() -> Bool {
-        
+        disposable = cm.blackCalibrate().subscribe(
+            onNext: {status in
+                self.calibrateWhiteCallback?(true);
+                self.disposable?.dispose()
+            },
+            onError: {
+                print("disconnection error: \($0)")
+                self.calibrateWhiteCallback?(false);
+            },
+            onDisposed: {
+                print("dispose")
+            });
         return true
     }
     

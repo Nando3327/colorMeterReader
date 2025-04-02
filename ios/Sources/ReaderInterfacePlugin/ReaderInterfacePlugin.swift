@@ -32,15 +32,23 @@ public class ReaderInterfacePlugin: CAPPlugin, CAPBridgedPlugin {
     }
     
     @objc func calibrateWhite(_ call: CAPPluginCall) {
-        call.resolve([
-            "calibrated": implementation.calibrateWhite()
-        ])
+        implementation.calibrateWhite();
+        implementation.calibrateWhiteCallback = { (value) -> Void in
+            print(value);
+            call.resolve([
+                "calibrated": value
+            ])
+        }
     }
     
     @objc func calibrateBlack(_ call: CAPPluginCall) {
-        call.resolve([
-            "calibrated": implementation.calibrateBlack()
-        ])
+        implementation.calibrateBlack();
+        implementation.calibrateBlackCallback = { (value) -> Void in
+            print(value);
+            call.resolve([
+                "calibrated": value
+            ])
+        }
     }
     
     @objc func isReaderConnected(_ call: CAPPluginCall) {
