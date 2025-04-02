@@ -1,6 +1,5 @@
 import Foundation
 import CoreBluetooth
-import UIKit
 import ColorMeterKit
 import RxSwift
 
