@@ -1,8 +1,8 @@
 import Foundation
 import CoreBluetooth
 import UIKit
-import ColorMeterKit
 import RxSwift
+import ColorMeterKit
 
 public class PairedDevices {
     var macAddress = String()
