@@ -56,7 +56,7 @@ public class CalibrationStatus {
 
 
 @objc public class ReaderInterface: NSObject {
-    
+
     
     var pairedDevices: Array<PairedDevices> = []
     var peripherals: [CBPeripheral] = []
@@ -70,7 +70,7 @@ public class CalibrationStatus {
     var cm = CMKit()
     var disposable: Disposable?
     var disposableLectures: Disposable?
-    
+
     
     public func listPairedDevices() -> [PairedDevices] {
         pairedDevices = [];
@@ -87,17 +87,20 @@ public class CalibrationStatus {
                         if(filtered.isEmpty && (peripheral.name) != nil) {
                             listedMacs.append(peripheral.identifier.uuidString);
                             self?.peripherals.append(peripheral)
-                            var obj: PairedDevices;
-                            obj = .init(
-                                macAddress: peripheral.identifier.uuidString,
-                                name: peripheral.name ?? peripheral.identifier.uuidString,
-                                batteryLevel: 10,
-                                batteryLevelString: "10%",
-                                status: "asss",
-                                whiteCalibration: true,
-                                blackCalibration: false
-                            );
-                            self?.pairedDevices.append(obj)
+                            peripheral.delegate = self
+                            if((peripheral.name?.contains("CM")) == true) {
+                                var obj: PairedDevices;
+                                obj = .init(
+                                    macAddress: peripheral.identifier.uuidString,
+                                    name: peripheral.name ?? peripheral.identifier.uuidString,
+                                    batteryLevel: 10,
+                                    batteryLevelString: "10%",
+                                    status: "disconnected",
+                                    whiteCalibration: false,
+                                    blackCalibration: false
+                                );
+                                self?.pairedDevices.append(obj)
+                            }
                         }
                     }
                 },
