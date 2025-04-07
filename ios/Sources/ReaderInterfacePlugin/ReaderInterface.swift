@@ -87,7 +87,6 @@ public class CalibrationStatus {
                         if(filtered.isEmpty && (peripheral.name) != nil) {
                             listedMacs.append(peripheral.identifier.uuidString);
                             self?.peripherals.append(peripheral)
-                            peripheral.delegate = self
                             if((peripheral.name?.contains("CM")) == true) {
                                 var obj: PairedDevices;
                                 obj = .init(
