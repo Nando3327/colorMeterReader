@@ -29,12 +29,14 @@ public class ReaderInterface {
         return true;
     }
 
-    public List<PairedDevice> listPairedDevices(Set<BluetoothDevice> pairedDevices) {
+    public List<PairedDevice> listPairedDevices(List<BluetoothDevice> pairedDevices) {
         List<PairedDevice> listResponse = new ArrayList();
         for (BluetoothDevice device : pairedDevices) {
             @SuppressLint("MissingPermission") String deviceName = device.getName();
             String deviceHardwareAddress = device.getAddress(); // MAC address
-            listResponse.add(new PairedDevice(deviceHardwareAddress, deviceName, 100, "100%", "disconnected", false, false));
+            if(deviceName != null && deviceName.contains("CM")) {
+                listResponse.add(new PairedDevice(deviceHardwareAddress, deviceName, 100, "100%", "disconnected", false, false));
+            }
         }
         return listResponse;
     }
