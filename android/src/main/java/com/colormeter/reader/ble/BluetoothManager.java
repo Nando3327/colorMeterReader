@@ -281,7 +281,7 @@ public class BluetoothManager {
         sendOrderByTime();
     }
 
-    private void postOrder() {
+    public void postOrder() {
         getByteSuccess = false;
         realByte = new byte[]{};
         wakeUp();
