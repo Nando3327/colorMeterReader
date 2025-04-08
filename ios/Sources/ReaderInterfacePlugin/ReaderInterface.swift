@@ -238,4 +238,6 @@ public class CalibrationStatus {
         return value
     }
     
+    @objc public func initNueServiceBle() -> Void {}
+    
 }

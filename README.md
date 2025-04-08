@@ -22,6 +22,7 @@ npx cap sync
 * [`getReaderCalibrationStatus()`](#getreadercalibrationstatus)
 * [`calibrateWhite()`](#calibratewhite)
 * [`calibrateBlack()`](#calibrateblack)
+* [`initNueServiceBle()`](#initnueserviceble)
 
 </docgen-index>
 
@@ -135,6 +136,15 @@ calibrateBlack() => Promise<{ calibrated: boolean; }>
 ```
 
 **Returns:** <code>Promise&lt;{ calibrated: boolean; }&gt;</code>
+
+--------------------
+
+
+### initNueServiceBle()
+
+```typescript
+initNueServiceBle() => void
+```
 
 --------------------
 

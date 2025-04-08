@@ -12,6 +12,9 @@ buildscript {
     repositories {
         google()
         mavenCentral()
+        flatDir {
+            dirs("libs")
+        }
     }
     dependencies {
         classpath "com.android.tools.build:gradle:$agp_version"
@@ -48,6 +51,9 @@ android {
 repositories {
     google()
     mavenCentral()
+    flatDir {
+        dirs("libs")
+    }
 }
 
 
@@ -58,4 +64,7 @@ dependencies {
     testImplementation "junit:junit:$junitVersion"
     androidTestImplementation "androidx.test.ext:junit:$androidxJunitVersion"
     androidTestImplementation "androidx.test.espresso:espresso-core:$androidxEspressoCoreVersion"
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
+    implementation 'org.apache.commons:commons-lang3:3.6'
 }

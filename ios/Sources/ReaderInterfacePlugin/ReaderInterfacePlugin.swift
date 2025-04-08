@@ -10,8 +10,8 @@ public class ReaderInterfacePlugin: CAPPlugin, CAPBridgedPlugin {
     public let identifier = "ReaderInterfacePlugin"
     public let jsName = "ReaderInterface"
     public let pluginMethods: [CAPPluginMethod] = [
-        CAPPluginMethod(name: "initBluetooth", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "echo", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "initNueServiceBle", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "listPairedDevices", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "connect", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "disconnect", returnType: CAPPluginReturnPromise),
@@ -25,6 +25,11 @@ public class ReaderInterfacePlugin: CAPPlugin, CAPBridgedPlugin {
     private let implementation = ReaderInterface()
 
     @objc func echo(_ call: CAPPluginCall) {
+        implementation.initNueServiceBle()
+        call.resolve()
+    }
+    
+    @objc func initNueServiceBle(_ call: CAPPluginCall) {
         let value = call.getString("value") ?? ""
         call.resolve([
             "value": implementation.echo(value)

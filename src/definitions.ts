@@ -8,4 +8,5 @@ export interface ReaderInterfacePlugin {
   getReaderCalibrationStatus(): Promise<{ black: boolean, white: boolean }>
   calibrateWhite(): Promise<{ calibrated: boolean }>
   calibrateBlack(): Promise<{ calibrated: boolean }>
+  initNueServiceBle(): void
 }

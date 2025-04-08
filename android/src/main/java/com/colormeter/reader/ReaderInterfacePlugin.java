@@ -1,14 +1,10 @@
 package com.colormeter.reader;
 
-import static androidx.activity.result.ActivityResultCallerKt.registerForActivityResult;
 import static androidx.core.content.ContextCompat.RECEIVER_EXPORTED;
-import static androidx.core.content.ContextCompat.RECEIVER_NOT_EXPORTED;
-import static androidx.core.content.ContextCompat.getSystemService;
 import static androidx.core.content.ContextCompat.registerReceiver;
 
 import android.Manifest;
-import android.annotation.SuppressLint;
-import android.app.Activity;
+import android.app.Application;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
@@ -16,15 +12,21 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.pm.PackageManager;
-import android.os.Build;
 import android.util.Log;
 
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.RequiresPermission;
-import androidx.core.app.ActivityCompat;
 
+import com.clj.fastble.BleManager;
+import com.colormeter.reader.bean.parse.AdjustBean;
+import com.colormeter.reader.bean.parse.DeviceInfoBean;
+import com.colormeter.reader.bean.parse.MeasureBean;
+import com.colormeter.reader.bean.parse.ReadLabMeasureDataBean;
+import com.colormeter.reader.bean.parse.ReadMeasureDataBean;
+import com.colormeter.reader.bean.parse.ReadRgbMeasureDataBean;
+import com.colormeter.reader.bean.parse.StandardSampleDataBean;
+import com.colormeter.reader.bean.parse.struct.DeviceInfoStruct;
 import com.colormeter.reader.models.PairedDevice;
+import com.colormeter.reader.util.Constant;
 import com.getcapacitor.JSObject;
 import com.getcapacitor.Plugin;
 import com.getcapacitor.PluginCall;
@@ -35,10 +37,11 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
+
 
 @CapacitorPlugin(name = "ReaderInterface")
 public class ReaderInterfacePlugin extends Plugin {
@@ -47,6 +50,231 @@ public class ReaderInterfacePlugin extends Plugin {
     private final static String REQUEST_ENABLE_BT = "bluetoothActivity";
 
     private List<BluetoothDevice> devicesFound = new ArrayList<>();
+
+    Context appcontext;
+    BluetoothManager bluetoothManager;
+    BluetoothAdapter bluetoothAdapter;
+
+    private final BroadcastReceiver receiver = new BroadcastReceiver() {
+        // onReceive method of the BroadcastReceiver
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            // Retrieve the action string from the received intent
+            String action = intent.getAction();
+            if (action != null) {
+                Log.i("deep", action);
+            }
+            Serializable data = intent.getSerializableExtra("data");
+            byte state = intent.getByteExtra("state", (byte) 0x00);
+            short standardNum = intent.getShortExtra("standard_num", (short) 0);
+            short sampleNum = intent.getShortExtra("sample_num", (short) 0);
+            short standardCount = intent.getShortExtra("standard_count", (short) 0);
+            short sampleCount = intent.getShortExtra("sample_count", (short) 0);
+            switch (action) {
+                case Constant.BLACK_ADJUST:
+                    onBlackAdjust((AdjustBean) data);
+                    break;
+                case Constant.WHITE_ADJUST:
+                    onWhiteAdjust((AdjustBean) data);
+                    break;
+                case Constant.MEASURE:
+                    onMeasure((MeasureBean) data);
+                    break;
+                case Constant.READ_MEASURE_DATA:
+                    onReadMeasureData((ReadMeasureDataBean) data);
+                    break;
+                case Constant.READ_LAB_MEASURE_DATA:
+                    onReadLabMeasureData((ReadLabMeasureDataBean) data);
+                    break;
+                case Constant.READ_RGB_MEASURE_DATA:
+                    onReadRgbMeasureData((ReadRgbMeasureDataBean) data);
+                    break;
+                case Constant.GET_STANDARD_DATA_COUNT:
+                    onGetStandardCount(standardCount);
+                    break;
+                case Constant.GET_STANDARD_DATA_FOR_NUM:
+                    onGetStandardDataForNumber((StandardSampleDataBean.StandardDataBean) data);
+                    break;
+                case Constant.DELETE_ALL_STANDARD_DATA:
+                    onDeleteAllStandardData(state);
+                    break;
+                case Constant.DELETE_STANDARD_DATA_FOR_NUM:
+                    onDeleteStandardDataForNumber(standardNum, state);
+                    break;
+                case Constant.GET_SAMPLE_COUNT_FOR_STANDARD_NUM:
+                    onGetSampleCountForStandardNumber(standardNum, state, sampleCount);
+                    break;
+                case Constant.GET_NUM_SAMPLE_DATA_FOR_NUM_STANDARD:
+                    onGetNumSampleDataForNumStandard(standardNum, sampleNum, state,
+                            (StandardSampleDataBean.SampleDataBean) data);
+                    break;
+                case Constant.DELETE_ALL_SAMPLE_FOR_STANDARD_NUM:
+                    onDeleteAllSampleForStandardNum(standardNum, state);
+                    break;
+                case Constant.DELETE_NUM_SAMPLE_DATA_FOR_NUM_STANDARD:
+                    onDeleteNumSampleDataForNumStandard(standardNum, sampleNum, state);
+                    break;
+                case Constant.POST_STANDARD_DATA:
+                    onPostStandardData(state);
+                    break;
+                case Constant.GET_DEVICE_INFO:
+                    onGetDeviceInfo((DeviceInfoStruct) data);
+                    break;
+                case Constant.GET_DEVICE_POWER_INFO:
+                    onGetDevicePowerInfo((DeviceInfoBean.PowerInfo) data);
+                    break;
+                case Constant.GET_DEVICE_ADJUST_STATE:
+                    onGetDeviceAdjustState((DeviceInfoBean.DeviceAdjustState) data);
+                    break;
+                case Constant.SET_DEVICE_DISPLAY_PARAM:
+                    onSetDeviceDisplayParam(state);
+                    break;
+                case Constant.SET_TOLERANCE:
+                    onSetTolerance(state);
+                    break;
+                case Constant.SET_BLUETOOTH:
+                    onSetBluetooth(state);
+                    break;
+                case Constant.SET_BLUETOOTH_NAME:
+                    onSetBluetoothName(state);
+                    break;
+                case Constant.SET_POWER_MANAGEMENT_TIME:
+                    onSetPowerManagementTime(state);
+                    break;
+                case Constant.SET_DEVICE_TIME:
+                    onSetDeviceTime(state);
+                    break;
+                case Constant.SET_SAVE_MODE:
+                    onSetSaveMode(state);
+                    break;
+                case Constant.ON_FAIL:
+                    String failType = intent.getStringExtra(Constant.ON_FAIL);
+                    onFail(failType);
+                    break;
+            }
+
+
+            if (action.equals(BluetoothAdapter.ACTION_DISCOVERY_STARTED)) {
+                System.out.println("***********  Discovery started  ***********");
+            } else if (action.equals(BluetoothAdapter.ACTION_DISCOVERY_FINISHED)) {
+                System.out.println("***********  Discovery finished  ***********");
+            }
+
+            // Check if the current action is "ACTION_FOUND" in order to proceed with processing the found device
+            if (BluetoothDevice.ACTION_FOUND.equals(action)) {
+                // Get the BluetoothDevice object from the intent's extra data
+                BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+                // Get the Received Signal Strength Indicator (RSSI) value from the intent's extra data
+                devicesFound.add(device);
+            }
+        }
+    };
+
+
+    public void onBlackAdjust(AdjustBean bean) {
+
+    }
+
+    public void onWhiteAdjust(AdjustBean bean) {
+
+    }
+
+    public void onMeasure(MeasureBean bean) {
+
+    }
+
+    public void onReadMeasureData(ReadMeasureDataBean bean) {
+
+    }
+
+    public void onReadLabMeasureData(ReadLabMeasureDataBean bean) {
+
+    }
+
+    public void onReadRgbMeasureData(ReadRgbMeasureDataBean bean) {
+
+    }
+
+    public void onGetStandardCount(short count) {
+
+    }
+
+    public void onGetStandardDataForNumber(StandardSampleDataBean.StandardDataBean standardDataBean) {
+
+    }
+
+    public void onDeleteAllStandardData(byte state) {
+
+    }
+
+    public void onDeleteStandardDataForNumber(short standardNum, byte state) {
+
+    }
+
+    public void onGetSampleCountForStandardNumber(short standardNum, byte state, short sampleCount) {
+
+    }
+
+    public void onGetNumSampleDataForNumStandard(short standardNum, short sampleNum,
+                                                 byte state, StandardSampleDataBean.SampleDataBean sampleDataBean) {
+
+    }
+
+    public void onDeleteAllSampleForStandardNum(short standardNum, byte state) {
+
+    }
+
+    public void onDeleteNumSampleDataForNumStandard(short standardNum, short sampleNum, byte state) {
+
+    }
+
+    public void onPostStandardData(byte state) {
+
+    }
+
+    public void onGetDeviceInfo(DeviceInfoStruct deviceInfoStruct) {
+
+    }
+
+    public void onGetDevicePowerInfo(DeviceInfoBean.PowerInfo powerInfo) {
+
+    }
+
+    public void onGetDeviceAdjustState(DeviceInfoBean.DeviceAdjustState deviceAdjustState) {
+
+    }
+
+    public void onSetDeviceDisplayParam(byte state) {
+
+    }
+
+    public void onSetTolerance(byte state) {
+
+    }
+
+    public void onSetBluetooth(byte state) {
+
+    }
+
+    public void onSetPowerManagementTime(byte state) {
+
+    }
+
+    public void onSetDeviceTime(byte state) {
+
+    }
+
+    public void onSetSaveMode(byte state) {
+
+    }
+
+    public void onSetBluetoothName(byte state) {
+
+    }
+
+    public void onFail(String failType) {
+
+    }
 
     @PluginMethod
     public void valueDetected(PluginCall call) {
@@ -67,9 +295,50 @@ public class ReaderInterfacePlugin extends Plugin {
     }
 
     @PluginMethod
+    public void initNueServiceBle(PluginCall call) {
+        appcontext = getActivity().getApplicationContext();
+        bluetoothManager = (BluetoothManager) appcontext.getSystemService(Context.BLUETOOTH_SERVICE);
+        bluetoothAdapter = bluetoothManager.getAdapter();
+
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(Constant.BLACK_ADJUST);
+        filter.addAction(Constant.WHITE_ADJUST);
+        filter.addAction(Constant.MEASURE);
+        filter.addAction(Constant.READ_MEASURE_DATA);
+        filter.addAction(Constant.READ_LAB_MEASURE_DATA);
+        filter.addAction(Constant.READ_RGB_MEASURE_DATA);
+        filter.addAction(Constant.GET_STANDARD_DATA_COUNT);
+        filter.addAction(Constant.GET_STANDARD_DATA_FOR_NUM);
+        filter.addAction(Constant.DELETE_ALL_STANDARD_DATA);
+        filter.addAction(Constant.DELETE_STANDARD_DATA_FOR_NUM);
+        filter.addAction(Constant.GET_SAMPLE_COUNT_FOR_STANDARD_NUM);
+        filter.addAction(Constant.GET_NUM_SAMPLE_DATA_FOR_NUM_STANDARD);
+        filter.addAction(Constant.DELETE_ALL_SAMPLE_FOR_STANDARD_NUM);
+        filter.addAction(Constant.DELETE_NUM_SAMPLE_DATA_FOR_NUM_STANDARD);
+        filter.addAction(Constant.POST_STANDARD_DATA);
+        filter.addAction(Constant.GET_DEVICE_INFO);
+        filter.addAction(Constant.GET_DEVICE_POWER_INFO);
+        filter.addAction(Constant.GET_DEVICE_ADJUST_STATE);
+        filter.addAction(Constant.SET_DEVICE_DISPLAY_PARAM);
+        filter.addAction(Constant.SET_TOLERANCE);
+        filter.addAction(Constant.SET_BLUETOOTH);
+        filter.addAction(Constant.SET_POWER_MANAGEMENT_TIME);
+        filter.addAction(Constant.SET_DEVICE_TIME);
+        filter.addAction(Constant.SET_SAVE_MODE);
+        filter.addAction(Constant.SET_BLUETOOTH_NAME);
+        filter.addAction(Constant.ON_FAIL);
+        filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_STARTED);
+        filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
+        filter.addAction(BluetoothDevice.ACTION_FOUND);
+        registerReceiver(appcontext, receiver, filter, RECEIVER_EXPORTED);
+        
+        implementation.initNueServiceBle((Application) appcontext);
+        call.resolve();
+    }
+
+    @PluginMethod
     public void connect(PluginCall call) {
         String value = call.getString("value");
-
         JSObject ret = new JSObject();
         ret.put("value", implementation.connect(value));
         call.resolve(ret);
@@ -84,36 +353,10 @@ public class ReaderInterfacePlugin extends Plugin {
         call.resolve(ret);
     }
 
-
-    private final BroadcastReceiver receiver = new BroadcastReceiver() {
-        // onReceive method of the BroadcastReceiver
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            // Retrieve the action string from the received intent
-            String action = intent.getAction();
-
-            if (action.equals(BluetoothAdapter.ACTION_DISCOVERY_STARTED)) {
-                System.out.println("***********  Discovery started  ***********");
-            } else if (action.equals(BluetoothAdapter.ACTION_DISCOVERY_FINISHED)) {
-                System.out.println("***********  Discovery finished  ***********");
-            }
-
-            // Check if the current action is "ACTION_FOUND" in order to proceed with processing the found device
-            if (BluetoothDevice.ACTION_FOUND.equals(action)) {
-                // Get the BluetoothDevice object from the intent's extra data
-                BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                // Get the Received Signal Strength Indicator (RSSI) value from the intent's extra data
-                devicesFound.add(device);
-            }
-        }
-    };
-
     @RequiresPermission(allOf = {Manifest.permission.BLUETOOTH_CONNECT, Manifest.permission.BLUETOOTH_SCAN})
     @PluginMethod
     public void listPairedDevices(PluginCall call) throws JSONException {
-        Context appcontext = getActivity().getApplicationContext();
-        BluetoothManager bluetoothManager = (BluetoothManager) appcontext.getSystemService(Context.BLUETOOTH_SERVICE);
-        BluetoothAdapter bluetoothAdapter = bluetoothManager.getAdapter();
+        devicesFound.clear();
         if (bluetoothAdapter == null) {
             // Device doesn't support Bluetooth
             return;
@@ -127,14 +370,6 @@ public class ReaderInterfacePlugin extends Plugin {
         if (bluetoothAdapter.isDiscovering()){
             bluetoothAdapter.cancelDiscovery();
         }
-
-
-
-        IntentFilter discoveryFilter = new IntentFilter();
-        discoveryFilter.addAction(BluetoothAdapter.ACTION_DISCOVERY_STARTED);
-        discoveryFilter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
-        discoveryFilter.addAction(BluetoothDevice.ACTION_FOUND);
-        registerReceiver(appcontext, receiver, discoveryFilter, RECEIVER_EXPORTED);
         bluetoothAdapter.startDiscovery();
 
         try {
@@ -151,7 +386,7 @@ public class ReaderInterfacePlugin extends Plugin {
             for (int i=0; i< devices.size(); i++)
             {
                 JSONObject jObjd=new JSONObject();
-                jObjd.put("id", devices.get(i).getMacAddress());
+                jObjd.put("macAddress", devices.get(i).getMacAddress());
                 jObjd.put("name", devices.get(i).getName());
                 jObjd.put("batteryLevel", devices.get(i).getBatteryLevel());
                 jObjd.put("batteryLevelString", devices.get(i).getBatteryLevelString());
