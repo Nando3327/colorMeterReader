@@ -53,6 +53,8 @@ public class ReaderInterfacePlugin extends Plugin {
 
     private float[] labRead;
 
+    private PluginCall readCaptured;
+
     Context appcontext;
     BluetoothManager bluetoothManager;
     BluetoothAdapter bluetoothAdapter;
@@ -180,6 +182,11 @@ public class ReaderInterfacePlugin extends Plugin {
 
     public void onReadLabMeasureData(ReadLabMeasureDataBean bean) {
         labRead = bean.getLab();
+        JSObject ret = new JSObject();
+        ret.put("l", labRead[0]);
+        ret.put("a", labRead[1]);
+        ret.put("b", labRead[2]);
+        readCaptured.resolve(ret);
     }
 
     public void onReadRgbMeasureData(ReadRgbMeasureDataBean bean) {
@@ -279,11 +286,7 @@ public class ReaderInterfacePlugin extends Plugin {
     @PluginMethod
     public void valueDetected(PluginCall call) {
         implementation.initializeLABMeasure();
-        JSObject ret = new JSObject();
-        ret.put("l", "10");
-        ret.put("a", "10");
-        ret.put("b", "20");
-        call.resolve(ret);
+        readCaptured = call;
     }
 
     @PluginMethod
