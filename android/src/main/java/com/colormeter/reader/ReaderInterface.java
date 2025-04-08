@@ -4,14 +4,18 @@ import android.annotation.SuppressLint;
 import android.app.Application;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
+import android.content.Context;
 import android.util.Log;
 
 import com.clj.fastble.BleManager;
 import com.clj.fastble.callback.BleGattCallback;
 import com.clj.fastble.data.BleDevice;
 import com.clj.fastble.exception.BleException;
+import com.colormeter.reader.bean.parse.MeasureBean;
 import com.colormeter.reader.ble.BluetoothManager;
+import com.colormeter.reader.models.Calibration;
 import com.colormeter.reader.models.PairedDevice;
+import com.colormeter.reader.util.Constant;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,7 +29,31 @@ public class ReaderInterface {
         return value;
     }
 
-    public void initNueServiceBle(Application app) {
+    public void measure(MeasureBean bean) {
+        BluetoothManager.getInstance().measureMode = bean.getMeasureMode();
+        BluetoothManager.getInstance().setOrder(Constant.READ_LAB_MEASURE_DATA);
+        BluetoothManager.getInstance().postOrder();
+    }
+
+    public boolean calibrateWhite() {
+        return true;
+    }
+
+    public boolean calibrateBlack() {
+        return true;
+    }
+
+    public Calibration getReaderCalibrationStatus() {
+        Calibration calibration = new Calibration(true, true);
+        return calibration;
+    }
+
+    public boolean isReaderConnected() {
+        return BluetoothManager.getInstance().connectDevice != null;
+    }
+
+    public void initNueServiceBle(Application app, Context context) {
+        BluetoothManager.getInstance().init(context);
         BleManager.getInstance().init(app);
         BleManager.getInstance()
                 .enableLog(true)
@@ -41,8 +69,8 @@ public class ReaderInterface {
         return true;
     }
 
-    public boolean disconnect(String value) {
-        Log.i("disconnect", value);
+    public boolean disconnect() {
+        BleManager.getInstance().disconnect(BluetoothManager.getInstance().connectDevice);
         return true;
     }
 

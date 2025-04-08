@@ -151,21 +151,10 @@ public class ReaderInterfacePlugin extends Plugin {
                     String failType = intent.getStringExtra(Constant.ON_FAIL);
                     onFail(failType);
                     break;
-            }
-
-
-            if (action.equals(BluetoothAdapter.ACTION_DISCOVERY_STARTED)) {
-                System.out.println("***********  Discovery started  ***********");
-            } else if (action.equals(BluetoothAdapter.ACTION_DISCOVERY_FINISHED)) {
-                System.out.println("***********  Discovery finished  ***********");
-            }
-
-            // Check if the current action is "ACTION_FOUND" in order to proceed with processing the found device
-            if (BluetoothDevice.ACTION_FOUND.equals(action)) {
-                // Get the BluetoothDevice object from the intent's extra data
-                BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                // Get the Received Signal Strength Indicator (RSSI) value from the intent's extra data
-                devicesFound.add(device);
+                case BluetoothDevice.ACTION_FOUND:
+                    BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+                    devicesFound.add(device);
+                    break;
             }
         }
     };
@@ -180,7 +169,7 @@ public class ReaderInterfacePlugin extends Plugin {
     }
 
     public void onMeasure(MeasureBean bean) {
-
+        implementation.measure(bean);
     }
 
     public void onReadMeasureData(ReadMeasureDataBean bean) {
@@ -188,7 +177,7 @@ public class ReaderInterfacePlugin extends Plugin {
     }
 
     public void onReadLabMeasureData(ReadLabMeasureDataBean bean) {
-
+        float[] lab = bean.getLab();
     }
 
     public void onReadRgbMeasureData(ReadRgbMeasureDataBean bean) {
@@ -277,7 +266,7 @@ public class ReaderInterfacePlugin extends Plugin {
     }
 
     @PluginMethod
-    public void valueDetected(PluginCall call) {
+    public void echo(PluginCall call) {
         String value = call.getString("value");
 
         JSObject ret = new JSObject();
@@ -286,11 +275,40 @@ public class ReaderInterfacePlugin extends Plugin {
     }
 
     @PluginMethod
-    public void echo(PluginCall call) {
-        String value = call.getString("value");
-
+    public void valueDetected(PluginCall call) {
         JSObject ret = new JSObject();
-        ret.put("value", implementation.echo(value));
+        ret.put("l", "10");
+        ret.put("a", "10");
+        ret.put("b", "20");
+        call.resolve(ret);
+    }
+
+    @PluginMethod
+    public void getReaderCalibrationStatus(PluginCall call) {
+        JSObject ret = new JSObject();
+        ret.put("black", implementation.getReaderCalibrationStatus().black);
+        ret.put("white", implementation.getReaderCalibrationStatus().white);
+        call.resolve(ret);
+    }
+
+    @PluginMethod
+    public void calibrateWhite(PluginCall call) {
+        JSObject ret = new JSObject();
+        ret.put("calibrated", implementation.calibrateWhite());
+        call.resolve(ret);
+    }
+
+    @PluginMethod
+    public void calibrateBlack(PluginCall call) {
+        JSObject ret = new JSObject();
+        ret.put("calibrated", implementation.calibrateBlack());
+        call.resolve(ret);
+    }
+
+    @PluginMethod
+    public void isReaderConnected(PluginCall call) {
+        JSObject ret = new JSObject();
+        ret.put("value", implementation.isReaderConnected());
         call.resolve(ret);
     }
 
@@ -327,12 +345,10 @@ public class ReaderInterfacePlugin extends Plugin {
         filter.addAction(Constant.SET_SAVE_MODE);
         filter.addAction(Constant.SET_BLUETOOTH_NAME);
         filter.addAction(Constant.ON_FAIL);
-        filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_STARTED);
-        filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
         filter.addAction(BluetoothDevice.ACTION_FOUND);
         registerReceiver(appcontext, receiver, filter, RECEIVER_EXPORTED);
-        
-        implementation.initNueServiceBle((Application) appcontext);
+
+        implementation.initNueServiceBle((Application) appcontext, appcontext);
         call.resolve();
     }
 
@@ -346,10 +362,8 @@ public class ReaderInterfacePlugin extends Plugin {
 
     @PluginMethod
     public void disconnect(PluginCall call) {
-        String value = call.getString("value");
-
         JSObject ret = new JSObject();
-        ret.put("value", implementation.disconnect(value));
+        ret.put("value", implementation.disconnect());
         call.resolve(ret);
     }
 
