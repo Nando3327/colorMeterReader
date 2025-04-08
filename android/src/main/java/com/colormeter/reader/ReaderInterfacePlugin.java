@@ -51,6 +51,8 @@ public class ReaderInterfacePlugin extends Plugin {
 
     private List<BluetoothDevice> devicesFound = new ArrayList<>();
 
+    private float[] labRead;
+
     Context appcontext;
     BluetoothManager bluetoothManager;
     BluetoothAdapter bluetoothAdapter;
@@ -177,10 +179,7 @@ public class ReaderInterfacePlugin extends Plugin {
     }
 
     public void onReadLabMeasureData(ReadLabMeasureDataBean bean) {
-        float[] lab = bean.getLab();
-        Log.i("Read L", String.valueOf(lab[0]));
-        Log.i("Read A", String.valueOf(lab[0]));
-        Log.i("Read B", String.valueOf(lab[0]));
+        labRead = bean.getLab();
     }
 
     public void onReadRgbMeasureData(ReadRgbMeasureDataBean bean) {
