@@ -39,13 +39,13 @@ public class ReaderInterface {
 
     public boolean calibrateWhite() {
         BluetoothManager.getInstance().setOrder(Constant.WHITE_ADJUST);
-//        BluetoothManager.getInstance().postOrder();
+        BluetoothManager.getInstance().postOrder();
         return true;
     }
 
     public boolean calibrateBlack() {
         BluetoothManager.getInstance().setOrder(Constant.BLACK_ADJUST);
-//        BluetoothManager.getInstance().postOrder();
+        BluetoothManager.getInstance().postOrder();
         return true;
     }
 
