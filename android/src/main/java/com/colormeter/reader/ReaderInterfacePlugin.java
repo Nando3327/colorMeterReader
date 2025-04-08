@@ -178,6 +178,9 @@ public class ReaderInterfacePlugin extends Plugin {
 
     public void onReadLabMeasureData(ReadLabMeasureDataBean bean) {
         float[] lab = bean.getLab();
+        Log.i("Read L", String.valueOf(lab[0]));
+        Log.i("Read A", String.valueOf(lab[0]));
+        Log.i("Read B", String.valueOf(lab[0]));
     }
 
     public void onReadRgbMeasureData(ReadRgbMeasureDataBean bean) {
@@ -276,6 +279,7 @@ public class ReaderInterfacePlugin extends Plugin {
 
     @PluginMethod
     public void valueDetected(PluginCall call) {
+        implementation.initializeLABMeasure();
         JSObject ret = new JSObject();
         ret.put("l", "10");
         ret.put("a", "10");

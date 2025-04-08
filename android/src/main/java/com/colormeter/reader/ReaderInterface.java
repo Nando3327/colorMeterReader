@@ -24,6 +24,7 @@ import java.util.List;
 public class ReaderInterface {
 
     private final static String REQUEST_ENABLE_BT = "bluetoothActivity";
+    private boolean isInitializedMeasureMode = false;
     public String echo(String value) {
         Log.i("Echo", value);
         return value;
@@ -35,15 +36,29 @@ public class ReaderInterface {
         BluetoothManager.getInstance().postOrder();
     }
 
+    public void initializeLABMeasure() {
+        if(!isInitializedMeasureMode) {
+            isInitializedMeasureMode = true;
+            BluetoothManager.getInstance().setOrder(Constant.MEASURE);
+            BluetoothManager.getInstance().postOrder();
+        }
+    }
+
     public boolean calibrateWhite() {
+        BluetoothManager.getInstance().setOrder(Constant.WHITE_ADJUST);
+        BluetoothManager.getInstance().postOrder();
         return true;
     }
 
     public boolean calibrateBlack() {
+        BluetoothManager.getInstance().setOrder(Constant.BLACK_ADJUST);
+        BluetoothManager.getInstance().postOrder();
         return true;
     }
 
     public Calibration getReaderCalibrationStatus() {
+        BluetoothManager.getInstance().setOrder(Constant.GET_DEVICE_ADJUST_STATE);
+        BluetoothManager.getInstance().postOrder();
         Calibration calibration = new Calibration(true, true);
         return calibration;
     }
@@ -65,6 +80,7 @@ public class ReaderInterface {
 
     public boolean connect(String value) {
         connectBluetoothDevice(value);
+        isInitializedMeasureMode = false;
         Log.i("connect", value);
         return true;
     }
