@@ -25,6 +25,7 @@ import com.colormeter.reader.bean.parse.ReadMeasureDataBean;
 import com.colormeter.reader.bean.parse.ReadRgbMeasureDataBean;
 import com.colormeter.reader.bean.parse.StandardSampleDataBean;
 import com.colormeter.reader.bean.parse.struct.DeviceInfoStruct;
+import com.colormeter.reader.models.Calibration;
 import com.colormeter.reader.models.PairedDevice;
 import com.colormeter.reader.util.Constant;
 import com.getcapacitor.JSObject;
@@ -54,6 +55,7 @@ public class ReaderInterfacePlugin extends Plugin {
     private float[] labRead;
 
     private PluginCall readCaptured;
+    private PluginCall calibrationStatus;
 
     Context appcontext;
     BluetoothManager bluetoothManager;
@@ -239,7 +241,11 @@ public class ReaderInterfacePlugin extends Plugin {
     }
 
     public void onGetDeviceAdjustState(DeviceInfoBean.DeviceAdjustState deviceAdjustState) {
-
+        JSObject ret = new JSObject();
+        Calibration calibrationStatusObject = new Calibration(deviceAdjustState.getWhiteADjustTime() > 0, deviceAdjustState.getBlackAdjustTime() > 0);
+        ret.put("black", calibrationStatusObject.black);
+        ret.put("white", calibrationStatusObject.white);
+        calibrationStatus.resolve(ret);
     }
 
     public void onSetDeviceDisplayParam(byte state) {
@@ -291,10 +297,8 @@ public class ReaderInterfacePlugin extends Plugin {
 
     @PluginMethod
     public void getReaderCalibrationStatus(PluginCall call) {
-        JSObject ret = new JSObject();
-        ret.put("black", implementation.getReaderCalibrationStatus().black);
-        ret.put("white", implementation.getReaderCalibrationStatus().white);
-        call.resolve(ret);
+        implementation.getReaderCalibrationStatus();
+        calibrationStatus = call;
     }
 
     @PluginMethod

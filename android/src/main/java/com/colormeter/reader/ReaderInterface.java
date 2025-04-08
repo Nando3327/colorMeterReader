@@ -13,7 +13,6 @@ import com.clj.fastble.data.BleDevice;
 import com.clj.fastble.exception.BleException;
 import com.colormeter.reader.bean.parse.MeasureBean;
 import com.colormeter.reader.ble.BluetoothManager;
-import com.colormeter.reader.models.Calibration;
 import com.colormeter.reader.models.PairedDevice;
 import com.colormeter.reader.util.Constant;
 
@@ -23,8 +22,6 @@ import java.util.List;
 
 public class ReaderInterface {
 
-    private final static String REQUEST_ENABLE_BT = "bluetoothActivity";
-    private boolean isInitializedMeasureMode = false;
     public String echo(String value) {
         Log.i("Echo", value);
         return value;
@@ -37,30 +34,24 @@ public class ReaderInterface {
     }
 
     public void initializeLABMeasure() {
-        if(!isInitializedMeasureMode) {
-            isInitializedMeasureMode = true;
-            BluetoothManager.getInstance().setOrder(Constant.MEASURE);
-            BluetoothManager.getInstance().postOrder();
-        }
+        BluetoothManager.getInstance().setOrder(Constant.MEASURE);
     }
 
     public boolean calibrateWhite() {
         BluetoothManager.getInstance().setOrder(Constant.WHITE_ADJUST);
-        BluetoothManager.getInstance().postOrder();
+//        BluetoothManager.getInstance().postOrder();
         return true;
     }
 
     public boolean calibrateBlack() {
         BluetoothManager.getInstance().setOrder(Constant.BLACK_ADJUST);
-        BluetoothManager.getInstance().postOrder();
+//        BluetoothManager.getInstance().postOrder();
         return true;
     }
 
-    public Calibration getReaderCalibrationStatus() {
+    public void getReaderCalibrationStatus() {
         BluetoothManager.getInstance().setOrder(Constant.GET_DEVICE_ADJUST_STATE);
         BluetoothManager.getInstance().postOrder();
-        Calibration calibration = new Calibration(true, true);
-        return calibration;
     }
 
     public boolean isReaderConnected() {
@@ -80,7 +71,6 @@ public class ReaderInterface {
 
     public boolean connect(String value) {
         connectBluetoothDevice(value);
-        isInitializedMeasureMode = false;
         Log.i("connect", value);
         return true;
     }
