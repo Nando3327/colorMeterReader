@@ -1,5 +1,6 @@
 export interface ReaderInterfacePlugin {
   echo(options: { value: string }): Promise<{ value: string }>;
+  reviewPermissions(): Promise<{ value: boolean }>;
   listPairedDevices(): { devices: any[] }
   connect(options: { value: string }): Promise<{ value: boolean }>
   disconnect(options: { value: string }): Promise<{ value: boolean }>

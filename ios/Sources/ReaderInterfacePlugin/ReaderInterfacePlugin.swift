@@ -11,6 +11,7 @@ public class ReaderInterfacePlugin: CAPPlugin, CAPBridgedPlugin {
     public let jsName = "ReaderInterface"
     public let pluginMethods: [CAPPluginMethod] = [
         CAPPluginMethod(name: "echo", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "reviewPermissions", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "initNueServiceBle", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "listPairedDevices", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "connect", returnType: CAPPluginReturnPromise),
@@ -27,6 +28,10 @@ public class ReaderInterfacePlugin: CAPPlugin, CAPBridgedPlugin {
     @objc func echo(_ call: CAPPluginCall) {
         implementation.initNueServiceBle()
         call.resolve()
+    }
+    
+    @objc func reviewPermissions(_ call: CAPPluginCall) {
+        call.resolve(["value": implementation.reviewPermissions()])
     }
     
     @objc func initNueServiceBle(_ call: CAPPluginCall) {

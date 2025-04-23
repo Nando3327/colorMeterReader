@@ -12,9 +12,12 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.util.Log;
 
 import androidx.annotation.RequiresPermission;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import com.clj.fastble.BleManager;
 import com.colormeter.reader.bean.parse.AdjustBean;
@@ -290,6 +293,25 @@ public class ReaderInterfacePlugin extends Plugin {
     }
 
     @PluginMethod
+    public void reviewPermissions(PluginCall call) {
+        String[] permissions = {
+                Manifest.permission.BLUETOOTH_ADVERTISE,
+                Manifest.permission.BLUETOOTH_SCAN,
+                Manifest.permission.BLUETOOTH_CONNECT
+        };
+        if (ContextCompat.checkSelfPermission(getContext(), permissions[0]) != PackageManager.PERMISSION_GRANTED ||
+                ContextCompat.checkSelfPermission(getContext(), permissions[1]) != PackageManager.PERMISSION_GRANTED ||
+                ContextCompat.checkSelfPermission(getContext(), permissions[2]) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(getActivity(), permissions, REQUEST_BLUETOOTH_PERMISSIONS);
+            call.reject("Permissions not accepted yet");
+        } else {
+            JSObject ret = new JSObject();
+            ret.put("value", true);
+            call.resolve(ret);
+        }
+    }
+
+    @PluginMethod
     public void valueDetected(PluginCall call) {
         implementation.initializeLABMeasure();
         readCaptured = call;
@@ -377,56 +399,64 @@ public class ReaderInterfacePlugin extends Plugin {
         call.resolve(ret);
     }
 
+    private static final int REQUEST_BLUETOOTH_PERMISSIONS = 1;
+
     @RequiresPermission(allOf = {Manifest.permission.BLUETOOTH_CONNECT, Manifest.permission.BLUETOOTH_SCAN})
     @PluginMethod
     public void listPairedDevices(PluginCall call) throws JSONException {
-        devicesFound.clear();
-        if (bluetoothAdapter == null) {
-            // Device doesn't support Bluetooth
-            return;
-        }
-
-        if (!bluetoothAdapter.isEnabled()) {
-            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            startActivityForResult(call, enableBtIntent, REQUEST_ENABLE_BT);
-        }
-
-        if (bluetoothAdapter.isDiscovering()){
-            bluetoothAdapter.cancelDiscovery();
-        }
-        bluetoothAdapter.startDiscovery();
-
         try {
-            TimeUnit.SECONDS.sleep(4);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-        bluetoothAdapter.cancelDiscovery();
-        JSObject ret = new JSObject();
-        JSONArray mJSONArray = new JSONArray();
-        List<PairedDevice> devices = implementation.listPairedDevices(devicesFound);
-        try
-        {
-            for (int i=0; i< devices.size(); i++)
-            {
-                JSONObject jObjd=new JSONObject();
-                jObjd.put("macAddress", devices.get(i).getMacAddress());
-                jObjd.put("name", devices.get(i).getName());
-                jObjd.put("batteryLevel", devices.get(i).getBatteryLevel());
-                jObjd.put("batteryLevelString", devices.get(i).getBatteryLevelString());
-                jObjd.put("status", devices.get(i).getStatus());
-                jObjd.put("whiteCalibration", devices.get(i).isWhiteCalibration());
-                jObjd.put("blackCalibration", devices.get(i).isBlackCalibration());
-                mJSONArray.put(jObjd);
+            devicesFound.clear();
+            if (bluetoothAdapter == null) {
+                // Device doesn't support Bluetooth
+                return;
             }
-            Log.e("Test", mJSONArray.toString());
+
+            if (!bluetoothAdapter.isEnabled()) {
+                Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+                startActivityForResult(call, enableBtIntent, REQUEST_ENABLE_BT);
+            }
+
+            if (bluetoothAdapter.isDiscovering()){
+                bluetoothAdapter.cancelDiscovery();
+            }
+            bluetoothAdapter.startDiscovery();
+
+            try {
+                TimeUnit.SECONDS.sleep(4);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            bluetoothAdapter.cancelDiscovery();
+            JSObject ret = new JSObject();
+            JSONArray mJSONArray = new JSONArray();
+            List<PairedDevice> devices = implementation.listPairedDevices(devicesFound);
+            try
+            {
+                for (int i=0; i< devices.size(); i++)
+                {
+                    JSONObject jObjd=new JSONObject();
+                    jObjd.put("macAddress", devices.get(i).getMacAddress());
+                    jObjd.put("name", devices.get(i).getName());
+                    jObjd.put("batteryLevel", devices.get(i).getBatteryLevel());
+                    jObjd.put("batteryLevelString", devices.get(i).getBatteryLevelString());
+                    jObjd.put("status", devices.get(i).getStatus());
+                    jObjd.put("whiteCalibration", devices.get(i).isWhiteCalibration());
+                    jObjd.put("blackCalibration", devices.get(i).isBlackCalibration());
+                    mJSONArray.put(jObjd);
+                }
+                Log.e("Test", mJSONArray.toString());
+            }
+            catch(JSONException ex)
+            {
+                Log.i("paired devices", devices.toString());
+                Log.i("paired devices error", ex.toString());
+            }
+            ret.putSafe("devices", mJSONArray);
+            call.resolve(ret);
+        } catch (JSONException ex) {
+            Log.i("Permission Error", "Error with permissions");
+            JSObject ret = new JSObject();
+            call.resolve(ret.put("Permissions", "Error in permissions"));
         }
-        catch(JSONException ex)
-        {
-            Log.i("paired devices", devices.toString());
-            Log.i("paired devices error", ex.toString());
-        }
-        ret.putSafe("devices", mJSONArray);
-        call.resolve(ret);
     }
 }

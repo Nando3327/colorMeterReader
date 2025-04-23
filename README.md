@@ -14,6 +14,7 @@ npx cap sync
 <docgen-index>
 
 * [`echo(...)`](#echo)
+* [`reviewPermissions()`](#reviewpermissions)
 * [`listPairedDevices()`](#listpaireddevices)
 * [`connect(...)`](#connect)
 * [`disconnect(...)`](#disconnect)
@@ -40,6 +41,17 @@ echo(options: { value: string; }) => Promise<{ value: string; }>
 | **`options`** | <code>{ value: string; }</code> |
 
 **Returns:** <code>Promise&lt;{ value: string; }&gt;</code>
+
+--------------------
+
+
+### reviewPermissions()
+
+```typescript
+reviewPermissions() => Promise<{ value: boolean; }>
+```
+
+**Returns:** <code>Promise&lt;{ value: boolean; }&gt;</code>
 
 --------------------
 

@@ -14,6 +14,13 @@ export class ReaderInterfaceWeb extends WebPlugin implements ReaderInterfacePlug
     return options;
   }
 
+  async reviewPermissions(): Promise<{ value: boolean }> {
+    return new Promise((resolve) => {
+      this.readerConnected = false;
+      resolve({value: true});
+    });
+  }
+
   async isReaderConnected(): Promise<{ value: boolean }> {
     return {value: this.readerConnected};
   }

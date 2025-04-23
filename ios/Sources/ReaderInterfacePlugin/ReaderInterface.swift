@@ -238,6 +238,10 @@ public class CalibrationStatus {
         return value
     }
     
+    @objc public func reviewPermissions() -> Bool {
+        return true
+    }
+    
     @objc public func initNueServiceBle() -> Void {}
     
 }
