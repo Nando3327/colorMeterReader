@@ -50,7 +50,7 @@ export class ReaderInterfaceWeb extends WebPlugin implements ReaderInterfacePlug
 
   valueDetected(): Promise<{ l: string, a: string, b: string }> {
     return new Promise((resolve) => {
-      resolve({l: '10', a: '10', b: '22'});
+      resolve({l: '61.5', a: '5.3', b: '14.9'});
     });
   }
 
@@ -69,8 +69,8 @@ export class ReaderInterfaceWeb extends WebPlugin implements ReaderInterfacePlug
   listPairedDevices(): { devices: any[] } {
     return {
       devices: [{
-        macAddress: 'mac1234',
-        name: 'WEB CM2018920',
+        macAddress: 'CM2018920',
+        name: 'CM2018920',
         batteryLevel: 85,
         batteryLevelString: '85%',
         status: 'disconnected',
