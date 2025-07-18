@@ -1,3 +1,16 @@
+# Compile
+
+run: 
+
+```
+npm run build
+```
+
+this create a dist file
+
+To install in project use npm i ../color-meter-plugin, replace ../ to the route to find the project
+
+
 # color-meter-plugin
 
 plugin to connect to color meter sdk
