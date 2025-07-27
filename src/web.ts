@@ -74,7 +74,7 @@ export class ReaderInterfaceWeb extends WebPlugin implements ReaderInterfacePlug
         batteryLevel: 85,
         batteryLevelString: '85%',
         status: 'disconnected',
-        whiteCalibration: false,
+        whiteCalibration: true,
         blackCalibration: true
       }]}
   }
