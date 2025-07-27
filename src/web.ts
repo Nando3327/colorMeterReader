@@ -69,8 +69,8 @@ export class ReaderInterfaceWeb extends WebPlugin implements ReaderInterfacePlug
   listPairedDevices(): { devices: any[] } {
     return {
       devices: [{
-        macAddress: 'CM2018920',
-        name: 'CM2018920',
+        macAddress: 'CM12C92323',
+        name: 'CM12C92323',
         batteryLevel: 85,
         batteryLevelString: '85%',
         status: 'disconnected',
