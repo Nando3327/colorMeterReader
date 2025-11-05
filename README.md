@@ -4,6 +4,7 @@ run:
 
 ```
 npm run build
+npm pack
 ```
 
 this create a dist file
@@ -18,6 +19,7 @@ plugin to connect to color meter sdk
 ## Install
 
 ```bash
+npm i /Users/nando/IdeaProjects/colorMeterReader/color-meter-plugin-0.0.5.tgz 
 npm install color-meter-plugin
 npx cap sync
 ```
