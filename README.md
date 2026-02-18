@@ -11,6 +11,7 @@ this create a dist file
 
 To install in project use npm i ../color-meter-plugin, replace ../ to the route to find the project
 
+If error with FastBLESdk in android by no lib found, copy .jar and aar from android/libs inside android[color-meter-plugin] libs, if libs do not exist, create it and sync gradle
 
 # color-meter-plugin
 
